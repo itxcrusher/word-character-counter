@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word & Character Counter</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        textarea::placeholder {
+            color: #64748b; /* slate-500 */
+        }
+        .stat-card {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-200 flex items-center justify-center min-h-full p-4 antialiased">
+    <div class="w-full max-w-4xl mx-auto">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-white">Word & Character Counter</h1>
+            <p class="text-slate-400 mt-2">Get real-time statistics for your text.</p>
+        </header>
+
+        <main class="bg-slate-800 p-8 rounded-2xl shadow-2xl space-y-8 border border-slate-700">
+            
+            <!-- Text Area -->
+            <div class="relative">
+                <textarea id="text-input" class="w-full h-72 bg-slate-700 text-white rounded-lg p-4 border-2 border-slate-600 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-colors resize-y" placeholder="Start typing or paste your text here to see the magic happen..."></textarea>
+                <button id="btn-clear" title="Clear Text" class="absolute top-3 right-3 bg-slate-600 hover:bg-red-500 text-white font-bold p-2 rounded-full shadow-md transition-all duration-200 ease-in-out transform hover:scale-110">
+                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+
+            <!-- Stats Display -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                <div class="stat-card bg-slate-700 p-6 rounded-lg">
+                    <div id="word-count" class="text-4xl font-bold text-sky-400">0</div>
+                    <div class="text-sm text-slate-400 mt-1">Words</div>
+                </div>
+                <div class="stat-card bg-slate-700 p-6 rounded-lg">
+                    <div id="char-count" class="text-4xl font-bold text-sky-400">0</div>
+                    <div class="text-sm text-slate-400 mt-1">Characters</div>
+                </div>
+                <div class="stat-card bg-slate-700 p-6 rounded-lg">
+                    <div id="sentence-count" class="text-4xl font-bold text-sky-400">0</div>
+                    <div class="text-sm text-slate-400 mt-1">Sentences</div>
+                </div>
+                 <div class="stat-card bg-slate-700 p-6 rounded-lg">
+                    <div id="paragraph-count" class="text-4xl font-bold text-sky-400">0</div>
+                    <div class="text-sm text-slate-400 mt-1">Paragraphs</div>
+                </div>
+            </div>
+            
+        </main>
+    </div>
+
+    <script>
+        // DOM element references
+        const textInput = document.getElementById('text-input');
+        const wordCountEl = document.getElementById('word-count');
+        const charCountEl = document.getElementById('char-count');
+        const sentenceCountEl = document.getElementById('sentence-count');
+        const paragraphCountEl = document.getElementById('paragraph-count');
+        const btnClear = document.getElementById('btn-clear');
+        
+        // --- Event Listeners ---
+        textInput.addEventListener('input', updateStats);
+        btnClear.addEventListener('click', clearInput);
+
+        function updateStats() {
+            const text = textInput.value;
+
+            // 1. Character Count
+            const charCount = text.length;
+            charCountEl.textContent = charCount;
+
+            // 2. Word Count
+            const words = text.trim().split(/\s+/).filter(word => word.length > 0);
+            wordCountEl.textContent = words.length;
+
+            // 3. Sentence Count
+            // A simple approach: count '.', '!', '?' not preceded by another.
+            // This is a basic heuristic and might not be perfect for all edge cases.
+            const sentences = text.match(/[^\.!\?]+[\.!\?]+/g);
+            sentenceCountEl.textContent = sentences ? sentences.length : 0;
+
+            // 4. Paragraph Count
+            // Count blocks of text separated by one or more newlines.
+            const paragraphs = text.split(/\n+/).filter(p => p.trim().length > 0);
+            paragraphCountEl.textContent = paragraphs.length;
+        }
+
+        function clearInput() {
+            textInput.value = '';
+            // Manually trigger the input event to reset stats
+            updateStats();
+        }
+
+        // Initialize stats on load
+        updateStats();
+    </script>
+</body>
+</html>

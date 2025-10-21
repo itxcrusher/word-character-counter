@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Word & Character Counter</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+        }
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -12,52 +17,88 @@
         body {
             font-family: 'Inter', sans-serif;
         }
-        textarea::placeholder {
-            color: #64748b; /* slate-500 */
-        }
         .stat-card {
             transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
         }
         .stat-card:hover {
             transform: translateY(-4px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.07), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+        }
+        .dark .stat-card:hover {
+             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        #hub-bubble {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            width: 56px;
+            height: 56px;
+            background-color: #0ea5e9; /* sky-500 */
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s ease-in-out, background-color 0.2s ease-in-out;
+        }
+        #hub-bubble:hover {
+            transform: scale(1.1);
+            background-color: #0284c7; /* sky-600 */
         }
     </style>
+    <script>
+        // On page load or when changing themes, best to add inline in `head` to avoid FOUC
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+          document.documentElement.classList.add('dark')
+        } else {
+          document.documentElement.classList.remove('dark')
+        }
+    </script>
 </head>
-<body class="bg-slate-900 text-slate-200 flex items-center justify-center min-h-full p-4 antialiased">
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 flex items-center justify-center min-h-full p-4 antialiased transition-colors duration-300">
+    
+    <!-- Theme Toggle Button -->
+    <div class="absolute top-4 right-4 sm:top-6 sm:right-6">
+        <button id="theme-toggle" type="button" title="Toggle light/dark mode" class="bg-white dark:bg-slate-800 p-3 rounded-full text-slate-500 dark:text-slate-400 hover:text-sky-500 dark:hover:text-sky-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors duration-200">
+            <svg id="theme-toggle-sun-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-sun hidden"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+            <svg id="theme-toggle-moon-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-moon hidden"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+        </button>
+    </div>
+
     <div class="w-full max-w-4xl mx-auto">
         <header class="text-center mb-8">
-            <h1 class="text-4xl font-bold text-white">Word & Character Counter</h1>
-            <p class="text-slate-400 mt-2">Get real-time statistics for your text.</p>
+            <h1 class="text-4xl font-bold text-slate-900 dark:text-white">Word & Character Counter</h1>
+            <p class="text-slate-600 dark:text-slate-400 mt-2">Get real-time statistics for your text.</p>
         </header>
 
-        <main class="bg-slate-800 p-8 rounded-2xl shadow-2xl space-y-8 border border-slate-700">
+        <main class="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-xl dark:shadow-2xl space-y-8 border border-slate-200 dark:border-slate-700">
             
             <!-- Text Area -->
             <div class="relative">
-                <textarea id="text-input" class="w-full h-72 bg-slate-700 text-white rounded-lg p-4 border-2 border-slate-600 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-colors resize-y" placeholder="Start typing or paste your text here to see the magic happen..."></textarea>
-                <button id="btn-clear" title="Clear Text" class="absolute top-3 right-3 bg-slate-600 hover:bg-red-500 text-white font-bold p-2 rounded-full shadow-md transition-all duration-200 ease-in-out transform hover:scale-110">
+                <textarea id="text-input" class="w-full h-72 bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 rounded-lg p-4 border-2 border-slate-300 dark:border-slate-600 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-colors resize-y" placeholder="Start typing or paste your text here to see the magic happen..."></textarea>
+                <button id="btn-clear" title="Clear Text" class="absolute top-3 right-3 bg-slate-200 dark:bg-slate-600 hover:bg-red-500 text-slate-600 dark:text-white font-bold p-2 rounded-full shadow-md transition-all duration-200 ease-in-out transform hover:scale-110">
                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                 </button>
             </div>
 
             <!-- Stats Display -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-                <div class="stat-card bg-slate-700 p-6 rounded-lg">
-                    <div id="word-count" class="text-4xl font-bold text-sky-400">0</div>
-                    <div class="text-sm text-slate-400 mt-1">Words</div>
+                <div class="stat-card bg-slate-100 dark:bg-slate-700 p-6 rounded-lg">
+                    <div id="word-count" class="text-4xl font-bold text-sky-500 dark:text-sky-400">0</div>
+                    <div class="text-sm text-slate-500 dark:text-slate-400 mt-1">Words</div>
                 </div>
-                <div class="stat-card bg-slate-700 p-6 rounded-lg">
-                    <div id="char-count" class="text-4xl font-bold text-sky-400">0</div>
-                    <div class="text-sm text-slate-400 mt-1">Characters</div>
+                <div class="stat-card bg-slate-100 dark:bg-slate-700 p-6 rounded-lg">
+                    <div id="char-count" class="text-4xl font-bold text-sky-500 dark:text-sky-400">0</div>
+                    <div class="text-sm text-slate-500 dark:text-slate-400 mt-1">Characters</div>
                 </div>
-                <div class="stat-card bg-slate-700 p-6 rounded-lg">
-                    <div id="sentence-count" class="text-4xl font-bold text-sky-400">0</div>
-                    <div class="text-sm text-slate-400 mt-1">Sentences</div>
+                <div class="stat-card bg-slate-100 dark:bg-slate-700 p-6 rounded-lg">
+                    <div id="sentence-count" class="text-4xl font-bold text-sky-500 dark:text-sky-400">0</div>
+                    <div class="text-sm text-slate-500 dark:text-slate-400 mt-1">Sentences</div>
                 </div>
-                 <div class="stat-card bg-slate-700 p-6 rounded-lg">
-                    <div id="paragraph-count" class="text-4xl font-bold text-sky-400">0</div>
-                    <div class="text-sm text-slate-400 mt-1">Paragraphs</div>
+                 <div class="stat-card bg-slate-100 dark:bg-slate-700 p-6 rounded-lg">
+                    <div id="paragraph-count" class="text-4xl font-bold text-sky-500 dark:text-sky-400">0</div>
+                    <div class="text-sm text-slate-500 dark:text-slate-400 mt-1">Paragraphs</div>
                 </div>
             </div>
             
@@ -80,58 +121,55 @@
         function updateStats() {
             const text = textInput.value;
 
-            // 1. Character Count
             const charCount = text.length;
             charCountEl.textContent = charCount;
 
-            // 2. Word Count
-            const words = text.trim().split(/\s+/).filter(word => word.length > 0);
+            const words = text.trim() ? text.trim().split(/\s+/) : [];
             wordCountEl.textContent = words.length;
 
-            // 3. Sentence Count
-            // A simple approach: count '.', '!', '?' not preceded by another.
-            // This is a basic heuristic and might not be perfect for all edge cases.
             const sentences = text.match(/[^\.!\?]+[\.!\?]+/g);
             sentenceCountEl.textContent = sentences ? sentences.length : 0;
 
-            // 4. Paragraph Count
-            // Count blocks of text separated by one or more newlines.
             const paragraphs = text.split(/\n+/).filter(p => p.trim().length > 0);
             paragraphCountEl.textContent = paragraphs.length;
         }
 
         function clearInput() {
             textInput.value = '';
-            // Manually trigger the input event to reset stats
             updateStats();
         }
 
-        // Initialize stats on load
         updateStats();
+
+        // Theme Toggle Logic
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const sunIcon = document.getElementById('theme-toggle-sun-icon');
+        const moonIcon = document.getElementById('theme-toggle-moon-icon');
+
+        const updateIcons = () => {
+            if (document.documentElement.classList.contains('dark')) {
+                sunIcon.classList.remove('hidden');
+                moonIcon.classList.add('hidden');
+            } else {
+                sunIcon.classList.add('hidden');
+                moonIcon.classList.remove('hidden');
+            }
+        };
+
+        themeToggleBtn.addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+            if (document.documentElement.classList.contains('dark')) {
+                localStorage.theme = 'dark';
+            } else {
+                localStorage.theme = 'light';
+            }
+            updateIcons();
+        });
+
+        updateIcons();
     </script>
-    <!-- Floating Hub Button Snippet -->
-    <style>
-        #hub-bubble {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 1000;
-            width: 56px;
-            height: 56px;
-            background-color: #0ea5e9; /* sky-500 */
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-            transition: transform 0.2s ease-in-out, background-color 0.2s ease-in-out;
-        }
-        #hub-bubble:hover {
-            transform: scale(1.1);
-            background-color: #0284c7; /* sky-600 */
-        }
-    </style>
     
+    <!-- Floating Hub Button Snippet -->
     <a href="https://muhammadhassaanjaved.com/tools.html" id="hub-bubble" title="View All Tools" target="_blank" rel="noopener noreferrer">
         <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <rect x="3" y="3" width="7" height="7"></rect>
